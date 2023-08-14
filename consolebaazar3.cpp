@@ -61,23 +61,15 @@ class User{
          }
 
      void getinfo() {
+        char ch;
     cout << "Username: ";
     cin >> username;
     
     if (username.length() == 10) {
         cout << "Password: ";
-
-        while ((ch = getch()) != '\r') {
-            if (ch == '\b') {
-                if (!password.empty()) {
-                    password.pop_back();
-                    cout << "\b \b";
-                }
-            } else {
-                password.push_back(ch);
-                cout << '*';
-            }
-        }
+        cin>>password;
+       
+      
     } else {
         cout << "Username should be a phone number with 10 digits." << endl;
         exit(1);
@@ -378,6 +370,7 @@ void StartShopping();
 void BuyingStore(string s);
 void ShoppingProduct(string s);
 void generatebill(string s);
+void previoushist();
 
 
 
@@ -515,9 +508,7 @@ void Customer::signin(){
                     break;
                 }
                 ifile.read((char *)&u, sizeof(u));
-                cout<<u.username_comp()<<'\n';
-                cout<<u.password_comp()<<'\n';
-                cout<<password;
+                
             }
 
             if (flag == 0) {
@@ -535,7 +526,10 @@ void Customer::signin(){
 void Customer::Homepage(){
        int n;
     system("cls");
-    Sleep(1000);
+     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    Sleep(100);
+     SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+    
     cout<<"-------------------------------------";
     string s="WELCOME  TO CONSOLE BAAZAR ";
     for(int i=0;i<s.length();i++){
@@ -543,6 +537,7 @@ void Customer::Homepage(){
         Sleep(100);
     }
     cout<<"--------------------------------------";
+      SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
  
    
@@ -550,7 +545,8 @@ void Customer::Homepage(){
     Sleep(1000);
     cout<<"\n1.Start Shopping"<<endl;
     cout<<"\n2.Generate Bill"<<endl;
-    cout<<"\n3.Exit"<<endl;
+    cout<<"\n3.See your Previous Buyings"<<endl;
+    cout<<"\n4.Exit"<<endl;
     cin>>n;
     switch(n){
         case 1:
@@ -561,6 +557,13 @@ void Customer::Homepage(){
        generatebill(userfile);
         Homepage();
 
+        case 3:
+        previoushist();
+        Homepage();
+
+ 
+        case 4:
+        exit(3);
 
          
           
@@ -677,10 +680,10 @@ void Customer::ShoppingProduct(string st) {
             code=p.code;
             name=p.name;
             price=p.price; 
-            otfile<<code<<'\t';
-            otfile<<name<<'\t';
-            otfile<<price<<'\t';
-            otfile<<quantity<<'\t';
+            otfile<<'\t'<<code<<'\t';
+            otfile<<'\t'<<name<<'\t';
+            otfile<<'\t'<<price<<'\t';
+            otfile<<'\t'<<quantity<<'\t';
             otfile<<endl;
             sum+=quantity*price;
         }
@@ -706,10 +709,16 @@ void Customer::generatebill(string st){
     char ch;
     string line;
     ifstream infile;
+    ofstream otfile;
+    string username=st+".txt";
+    const char *cptr=username.c_str();
+    
 
    
-
+   otfile.open(st +"his.txt",ios::app);
     infile.open( st +".txt",ios::in);
+   
+
     infile.seekg(0,ios::end);
     if(infile.tellg()==0){
         cout<<"You Haven't Bought any Product From Our Store.";
@@ -718,17 +727,68 @@ void Customer::generatebill(string st){
         StartShopping();
 
     }
+    infile.seekg(0,ios::beg);
     cout<<"----------------------------------------------------------------------"<<endl;
-    cout<<"code\tname\tprice\tquantity"<<endl;
+    cout<<"\tCode\t\tName\t\tPrice\t\tQuantity\t"<<endl;
     cout<<"-----------------------------------------------------------------------"<<endl;
    while (std::getline(infile, line)) {
         std::cout << line << std::endl; 
+        otfile<<line<<endl;
+       
     }
-    cout<<"Total : "<<sum;
+    cout<<"\t\t\t\t\t\t\t\tTotal : "<<sum;
+    
+  
+    infile.close();
+    remove(cptr);
+    
+
+    otfile.close();
+    
      getch();
     
 
 
+
+
+
+
+
+
+
+
+
+}
+void Customer::previoushist(){
+    
+    ifstream infile;
+    string line;
+    infile.open(userfile +"his.txt",ios::in);
+    if(!(infile.good())){
+        cout<<"You Don't Have  Any Buying History"<<endl;
+        cout<<"Press BackSpace to move to previous page";
+        getch();
+        Homepage();
+
+    }
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+    std::cout <<userfile<<"   Your History So Saved Here Are: " << std::endl;
+
+    SetConsoleTextAttribute(hConsole,FOREGROUND_BLUE|FOREGROUND_INTENSITY);
+  cout<<"----------------------------------------------------------------------"<<endl;
+    cout<<"\tCode\t\tName\t\tPrice\t\tQuantity\t"<<endl;
+    cout<<"-----------------------------------------------------------------------"<<endl;
+      while (std::getline(infile, line)) {
+        std::cout << line << std::endl; 
+        
+       
+    }
+    getch();
+    
+    
 
 
 
